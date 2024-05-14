@@ -34,6 +34,9 @@
 #include "ice_fpga.h"
 #include "ice_led.h"
 
+// local
+#include "local/dhry_rp2040.h"
+
 // GP0  UART0Tx  ICE27
 // GP1  UART0Rx  ICE25
 #define UART0_TX_PIN 0
@@ -164,6 +167,9 @@ int main(void)
         switch (chr) {
         case 'v':
             repl_command_version();
+            break;
+        case 'd':
+            run_dhrystone_rp2040();
             break;
         default:
             printf("\r\n");

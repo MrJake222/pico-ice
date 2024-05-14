@@ -16,6 +16,8 @@ add_compile_definitions(VERSION=\"${PICO_ICE_SDK_VERSION}\")
 add_executable(${CMAKE_PROJECT_NAME}
     main.c
     usb_descriptors.c
+    local/dhry.c
+    local/dhry_rp2040.c
     )
 target_link_libraries(${CMAKE_PROJECT_NAME}
     pico_ice_sdk
