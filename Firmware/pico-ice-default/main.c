@@ -39,13 +39,17 @@
 
 // GP0  UART0Tx  ICE27
 // GP1  UART0Rx  ICE25
-#define UART0_TX_PIN 0
-#define UART0_RX_PIN 1
+// GP2  UART0CTS ICE21
+#define UART0_TX_PIN    0
+#define UART0_RX_PIN    1
+#define UART0_CTS_PIN   2
 
 // GP4  UART1Tx  ICE26
 // GP5  UART1Rx  ICE23
-#define UART1_TX_PIN 4
-#define UART1_RX_PIN 5
+// GP6  UART1CTS ICE20
+#define UART1_TX_PIN    4
+#define UART1_RX_PIN    5
+#define UART1_CTS_PIN   6
 
 #define DOC_FORWARD_SPI \
 "https://pico-ice.tinyvision.ai/group__ice__usb.html#autotoc_md2"
@@ -130,6 +134,8 @@ int main(void)
     uart_init(uart0, 115200);
     gpio_set_function(UART0_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(UART0_RX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART0_CTS_PIN, GPIO_FUNC_UART);
+    uart_set_hw_flow(uart0, true, false);
 #endif
 
 #if ICE_USB_UART1_CDC
@@ -137,6 +143,8 @@ int main(void)
     uart_init(uart1, 115200);
     gpio_set_function(UART1_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(UART1_RX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART1_CTS_PIN, GPIO_FUNC_UART);
+    uart_set_hw_flow(uart1, true, false);
 #endif
 
     // Let the FPGA start
@@ -156,7 +164,7 @@ int main(void)
     repl_prompt();
 
     while (true) {
-        tud_task();
+        ice_usb_task();
 
         int chr = repl_getchar();
         if (chr == PICO_ERROR_TIMEOUT)
