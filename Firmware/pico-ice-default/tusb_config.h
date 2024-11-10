@@ -62,10 +62,12 @@
 // Configure 2-way forwarding between USB CDC2 and SPI
 //#define ICE_USB_SPI_CDC             2
 
-// CDC FIFO size of TX and RX and Endpoint buffer size
-#define CFG_TUD_CDC_EP_BUFSIZE      512
-#define CFG_TUD_CDC_RX_BUFSIZE      (CFG_TUD_CDC_EP_BUFSIZE * 2)
-#define CFG_TUD_CDC_TX_BUFSIZE      (CFG_TUD_CDC_EP_BUFSIZE * 2)
+// CDC FIFO size of TX and RX
+// don't raise CFG_TUD_CDC_EP_BUFSIZE here manually
+// setting it to 512 will prevent TinyUSB from receiving
+// data not in 512 multiples
+#define CFG_TUD_CDC_RX_BUFSIZE      512
+#define CFG_TUD_CDC_TX_BUFSIZE      512
 
 // MSC Buffer size of Device Mass storage
 #define CFG_TUD_MSC_BUFSIZE         ICE_FLASH_SECTOR_SIZE
