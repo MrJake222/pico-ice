@@ -57,18 +57,12 @@
 #define DOC_DEFAULT_FIRMWARE \
 "https://github.com/tinyvision-ai-inc/pico-ice/tree/main/Firmware/pico-ice-default"
 
-// for repl_ungetchar() to take back the last character from repl_getchar():
-int repl_last_char;
-bool repl_last_held;
+#define DOC_MRJAKE_FIRMWARE \
+"https://github.com/MrJake222/pico-ice"
 
 static int repl_getchar(void)
 {
     int c;
-
-    if (repl_last_held) {
-        repl_last_held = false;
-        return repl_last_char;
-    }
 
     c = getchar_timeout_us(0);
     if (c == PICO_ERROR_TIMEOUT)
@@ -82,47 +76,14 @@ static int repl_getchar(void)
     return c;
 }
 
-static void repl_ungetchar(int c)
-{
-    assert(!repl_last_held);
-    repl_last_char = c;
-    repl_last_held = true;
-}
-
-static inline bool repl_parse_error(char *msg, char c)
-{
-    // reset whatever was being input
-    repl_last_held = false;
-
-    printf("\nerror: expected %s got '%c'\n", msg, c);
-    return false;
-}
-
-static bool repl_parse_newline(void)
-{
-    int c;
-
-    switch (c = repl_getchar()) {
-    case '\r':
-    case '\n':
-    case EOF:
-        return true;
-    default:
-        repl_ungetchar(c);
-        return repl_parse_error("newline", c);
-    }
-}
-
 static void repl_command_version(void)
 {
-    if (!repl_parse_newline()) {
-        return;
-    }
     printf("pico-ice-sdk %s\r\n", VERSION);
 }
 
 static void repl_prompt(void)
 {
+    // in bold
     printf("\x1b[1mpico-ice>\x1b[m ");
 }
 
@@ -171,6 +132,7 @@ int main(void)
             continue;
 
         // not timeout, something received
+        printf("\r\n");
 
         switch (chr) {
         case 'v':
@@ -180,20 +142,32 @@ int main(void)
             run_dhrystone_rp2040();
             break;
         default:
-            printf("\r\n");
-            printf("pico-ice default firmware\r\n", VERSION);
-            printf("   %s\r\n", DOC_DEFAULT_FIRMWARE);
+            printf("pico-ice MrJake222 firmware\r\n");
+            printf("   %s\r\n", DOC_MRJAKE_FIRMWARE);
             printf("\r\n");
             printf("Serial port #0 - this shell, with commands:\r\n");
             printf("  v - print pico-ice-sdk version\r\n");
+            printf("  d - perform dhrystone benchmark\r\n");
             printf("\r\n");
-            printf("Serial port #1 - forwarding to UART\r\n");
-            printf("  UART TX on RP0 = ICE27\r\n");
-            printf("  UART RX on RP1 = ICE25\r\n");
+#ifdef ICE_USB_UART0_CDC
+            printf("Serial port #%d - forwarding to UART0\r\n", ICE_USB_UART0_CDC);
+            printf("  UART TX  on RP0 = ICE27\r\n");
+            printf("  UART RX  on RP1 = ICE25\r\n");
+            printf("  UART CTS on RP2 = ICE21\r\n");
             printf("\r\n");
-            printf("Serial port #2 - forwarding to SPI:\r\n");
+#endif
+#ifdef ICE_USB_UART1_CDC
+            printf("Serial port #%d - forwarding to UART1\r\n", ICE_USB_UART1_CDC);
+            printf("  UART TX  on RP4 = ICE26\r\n");
+            printf("  UART RX  on RP5 = ICE23\r\n");
+            printf("  UART CTS on RP6 = ICE20\r\n");
+            printf("\r\n");
+#endif
+#ifdef ICE_USB_SPI_CDC
+            printf("Serial port #%d - forwarding to SPI:\r\n", ICE_USB_SPI_CDC);
             printf("  %s\r\n", DOC_FORWARD_SPI);
             printf("\r\n");
+#endif
             break;
         }
 
